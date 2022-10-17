@@ -1,8 +1,9 @@
 package pl.edu.pw.ee;
 
+import pl.edu.pw.ee.services.Sorting;
+
 import java.util.ArrayList;
 import java.util.List;
-import pl.edu.pw.ee.services.Sorting;
 
 public class HeapSort implements Sorting {
 

@@ -3,7 +3,6 @@ package pl.edu.pw.ee;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,8 +18,11 @@ public class HeapTest {
         Collections.addAll(items, itemsArray);
         Heap<Double> heap = new Heap<>(items);
 
+        int startId = 0;
+        int endId = itemsArray.length + 2;
+
         // when
-        heap.heapify(0, itemsArray.length);
+        heap.heapify(startId, endId);
 
         // then
         assert false;
@@ -34,8 +36,11 @@ public class HeapTest {
         Collections.addAll(items, itemsArray);
         Heap<Double> heap = new Heap<>(items);
 
+        int startId = 3;
+        int endId = 1;
+
         // when
-        heap.heapify(itemsArray.length - 1, 0);
+        heap.heapify(startId, endId);
 
         // then
         assert false;
@@ -45,15 +50,15 @@ public class HeapTest {
     public void itShouldHeapifySubtree() {
         // given
         List<Double> items = new ArrayList<>();
-        Double[] itemsArray = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0};
+        Double[] itemsArray = {1.0, 2.0, 6.0, 4.0, 8.0, 3.0, 7.0};
         Collections.addAll(items, itemsArray);
         Heap<Double> heap = new Heap<>(items);
 
         // when
-        heap.heapify(2, itemsArray.length - 2);
+        heap.heapify(2, itemsArray.length);
 
         // then
-        Double[] expected = {1.0, 2.0, 6.0, 5.0, 4.0, 3.0, 7.0};
+        Double[] expected = {1.0, 2.0, 7.0, 4.0, 8.0, 3.0, 6.0};
         assertArrayEquals(expected, heap.getData().toArray());
     }
 
@@ -69,7 +74,7 @@ public class HeapTest {
         heap.build();
 
         // then
-        Double[] expected = {Double.MAX_VALUE, 6.833, 0.5, Double.MIN_VALUE, 0.0, -Double.MIN_VALUE, -4.0, -Double.MAX_VALUE};
+        Double[] expected = {Double.MAX_VALUE, 6.833, Double.MIN_VALUE, 0.5, 0.0, -4.0, -Double.MIN_VALUE, -Double.MAX_VALUE};
         assertArrayEquals(expected, heap.getData().toArray());
     }
 
@@ -90,18 +95,15 @@ public class HeapTest {
     public void itShouldAddItemsToHeap() {
         // given
         Heap<Double> heap = new Heap<>(null);
-        //Double[] items = {0.5, 6.833, Double.MIN_VALUE, Double.MAX_VALUE, 0.0, -4.0, -Double.MIN_VALUE, -Double.MAX_VALUE};
-        Double[] items = {0.5, 6.833, -4.0, 0.0, 7.6, 1.2, -5.0};
+        Double[] items = {0.5, 6.833, Double.MIN_VALUE, Double.MAX_VALUE, 0.0, -4.0, -Double.MIN_VALUE, -Double.MAX_VALUE};
 
         // when
         for (Double item : items) {
             heap.put(item);
         }
 
-        System.out.println(Arrays.toString(heap.getData().toArray()));
-
         // then
-        Double[] expected = {6.833, 0.5, Double.MIN_VALUE, Double.MAX_VALUE, 0.0, -4.0, -Double.MIN_VALUE, -Double.MAX_VALUE};
+        Double[] expected = {Double.MAX_VALUE, 6.833, Double.MIN_VALUE, 0.5, 0.0, -4.0, -Double.MIN_VALUE, -Double.MAX_VALUE};
         assertArrayEquals(expected, heap.getData().toArray());
     }
 

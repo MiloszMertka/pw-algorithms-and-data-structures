@@ -1,10 +1,10 @@
 package pl.edu.pw.ee;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import pl.edu.pw.ee.services.HeapExtension;
 import pl.edu.pw.ee.services.HeapInterface;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Heap<T extends Comparable<T>> implements HeapInterface<T>, HeapExtension {
 
@@ -31,8 +31,7 @@ public class Heap<T extends Comparable<T>> implements HeapInterface<T>, HeapExte
         data.add(item);
 
         if (data.size() > 1) {
-            heapify(getRootIndex(), getLastLeafIndex() + 1);
-            System.out.println(Arrays.toString(data.toArray()));
+            build();
         }
     }
 
@@ -72,28 +71,50 @@ public class Heap<T extends Comparable<T>> implements HeapInterface<T>, HeapExte
             throw new IllegalArgumentException("startId cannot be greater than or equal to endId");
         }
 
+        heapDown(startId, endId);
+    }
+
+    private void heapDown(int startId, int endId) {
         int parentId = startId;
 
         while (true) {
-            int largestId = parentId;
-            int leftChildId = 2 * largestId + 1;
-            int rightChildId = 2 * largestId + 2;
+            int largestNodeId = findLargestNodeId(parentId, endId);
 
-            if (leftChildId < endId && data.get(leftChildId).compareTo(data.get(largestId)) > 0) {
-                largestId = leftChildId;
-            }
-
-            if (rightChildId < endId && data.get(rightChildId).compareTo(data.get(largestId)) > 0) {
-                largestId = rightChildId;
-            }
-
-            if (largestId != parentId) {
-                swap(largestId, parentId);
-                parentId = largestId;
+            if (largestNodeId != parentId) {
+                swap(largestNodeId, parentId);
+                parentId = largestNodeId;
             } else {
                 break;
             }
         }
+    }
+
+    private int findLargestNodeId(int parentId, int endId) {
+        int largestNodeId = parentId;
+        int leftChildId = getLeftChildId(parentId);
+        int rightChildId = getRightChildId(parentId);
+
+        if (checkIfChildIsLarger(leftChildId, endId, largestNodeId)) {
+            largestNodeId = leftChildId;
+        }
+
+        if (checkIfChildIsLarger(rightChildId, endId, largestNodeId)) {
+            largestNodeId = rightChildId;
+        }
+
+        return largestNodeId;
+    }
+
+    private int getLeftChildId(int parentId) {
+        return 2 * parentId + 1;
+    }
+
+    private int getRightChildId(int parentId) {
+        return 2 * parentId + 2;
+    }
+
+    private boolean checkIfChildIsLarger(int childId, int endId, int largestId) {
+        return childId < endId && data.get(childId).compareTo(data.get(largestId)) > 0;
     }
 
     private int getRootIndex() {
