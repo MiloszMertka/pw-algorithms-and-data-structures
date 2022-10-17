@@ -2,13 +2,12 @@ package pl.edu.pw.ee;
 
 import java.util.ArrayList;
 import java.util.List;
-import pl.edu.pw.ee.services.HeapExtension;
 import pl.edu.pw.ee.services.Sorting;
 
 public class HeapSort implements Sorting {
 
     private List<Double> data;
-    private HeapExtension heap;
+    private Heap heap;
 
     @Override
     public void sort(double[] nums) {
@@ -18,12 +17,17 @@ public class HeapSort implements Sorting {
 
         int n = nums.length;
 
-        data = boxingData(nums);
-        heap = new Heap(data);
+        if (n > 1) {
+            data = boxingData(nums);
+            heap = new Heap<>(data);
+            heap.build();
 
-        for (int i = n - 1; i > 0; i--) {
-            swap(0, i);
-            heap.heapify(0, i);
+            for (int i = n - 1; i > 0; i--) {
+                swap(0, i);
+                heap.heapify(0, i);
+            }
+
+            unboxingData(data, nums);
         }
     }
 
@@ -35,6 +39,16 @@ public class HeapSort implements Sorting {
         }
 
         return numsAsList;
+    }
+
+    private void unboxingData(List<Double> data, double[] nums) {
+        if (data.size() != nums.length) {
+            throw new IllegalStateException("data length must be equal to nums length");
+        }
+
+        for (int i = 0; i < nums.length; i++) {
+            nums[i] = data.get(i);
+        }
     }
 
     private void swap(int firstId, int secondId) {
