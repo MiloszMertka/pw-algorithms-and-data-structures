@@ -1,43 +1,40 @@
 package pl.edu.pw.ee;
 
-import java.util.ArrayList;
 import java.util.List;
+import pl.edu.pw.ee.services.HeapExtension;
 import pl.edu.pw.ee.services.HeapInterface;
 
-public class Heap<T extends Comparable<T>> implements HeapInterface<T> {
+public class Heap<T extends Comparable<T>> implements HeapInterface<T>, HeapExtension {
 
-    private final List<T> heap = new ArrayList<>();
+    private List<T> data;
+
+    public Heap(List<T> data) {
+        this.data = data;
+    }
 
     @Override
     public void put(T item) {
-        if (item == null) {
-            throw new IllegalArgumentException("item cannot be null");
-        }
-
-        heap.add(item);
-        heapUp();
+        // TODO
     }
 
     @Override
     public T pop() {
-        if (heap.isEmpty()) {
-            throw new IllegalStateException("cannot get item from empty heap");
+        // TODO
+        return null;
+    }
+
+    @Override
+    public void build() {
+        int n = data.size();
+
+        for (int i = n / 2 - 1; i >= 0; i--) {
+            heapify(i, n);
         }
-
-        int rootIndex = 0;
-        T item = heap.remove(rootIndex);
-
-        heapDown();
-
-        return item;
     }
 
-    private void heapUp() {
-
-    }
-
-    private void heapDown() {
-
+    @Override
+    public void heapify(int startId, int endId) {
+        // TODO
     }
 
 }
