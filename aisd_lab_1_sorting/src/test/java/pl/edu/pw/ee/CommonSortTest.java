@@ -96,6 +96,19 @@ public abstract class CommonSortTest {
     }
 
     @Test
+    public void itShouldHandleArrayOfTheSameValues() {
+        // given
+        double[] nums = {5, 5, 5, 5, 5, 5, 5, 5};
+
+        // when
+        sorter.sort(nums);
+
+        // then
+        double[] expected = {5, 5, 5, 5, 5, 5, 5, 5};
+        assertArrayEquals(expected, nums, DELTA);
+    }
+
+    @Test
     public void itShouldSortArrayOfRandomNums() {
         // given
         long seed = 1234;

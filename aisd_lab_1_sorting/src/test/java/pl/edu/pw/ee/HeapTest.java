@@ -28,26 +28,8 @@ public class HeapTest {
         assert false;
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void itShouldThrowExceptionWhenHeapifyStartIdIsGreaterThanEndId() {
-        // given
-        List<Double> items = new ArrayList<>();
-        Double[] itemsArray = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0};
-        Collections.addAll(items, itemsArray);
-        Heap<Double> heap = new Heap<>(items);
-
-        int startId = 3;
-        int endId = 1;
-
-        // when
-        heap.heapify(startId, endId);
-
-        // then
-        assert false;
-    }
-
     @Test
-    public void itShouldHeapifySubtree() {
+    public void itShouldHeapifyDownSubtree() {
         // given
         List<Double> items = new ArrayList<>();
         Double[] itemsArray = {1.0, 2.0, 6.0, 4.0, 8.0, 3.0, 7.0};
@@ -56,6 +38,22 @@ public class HeapTest {
 
         // when
         heap.heapify(2, itemsArray.length);
+
+        // then
+        Double[] expected = {1.0, 2.0, 7.0, 4.0, 8.0, 3.0, 6.0};
+        assertArrayEquals(expected, heap.getData().toArray());
+    }
+
+    @Test
+    public void itShouldHeapifyUpSubtree() {
+        // given
+        List<Double> items = new ArrayList<>();
+        Double[] itemsArray = {1.0, 2.0, 6.0, 4.0, 8.0, 3.0, 7.0};
+        Collections.addAll(items, itemsArray);
+        Heap<Double> heap = new Heap<>(items);
+
+        // when
+        heap.heapify(itemsArray.length - 1, 2);
 
         // then
         Double[] expected = {1.0, 2.0, 7.0, 4.0, 8.0, 3.0, 6.0};

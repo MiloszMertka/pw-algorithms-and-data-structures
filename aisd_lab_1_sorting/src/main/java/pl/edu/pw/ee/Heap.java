@@ -31,7 +31,7 @@ public class Heap<T extends Comparable<T>> implements HeapInterface<T>, HeapExte
         data.add(item);
 
         if (data.size() > 1) {
-            build();
+            heapify(getLastLeafIndex(), getRootIndex());
         }
     }
 
@@ -64,14 +64,33 @@ public class Heap<T extends Comparable<T>> implements HeapInterface<T>, HeapExte
 
     @Override
     public void heapify(int startId, int endId) {
-        checkIfIndexIsOutOfBounds(startId);
-        checkIfIndexIsOutOfBounds(endId - 1);
+        checkIfStartIndexIsOutOfBounds(startId);
+        checkIfEndIndexIsOutOfBounds(endId);
 
-        if (startId >= endId) {
-            throw new IllegalArgumentException("startId cannot be greater than or equal to endId");
+        if (startId == endId) {
+            return;
+        }
+
+        if (startId > endId) {
+            heapUp(startId, endId);
         }
 
         heapDown(startId, endId);
+    }
+
+    private void heapUp(int startId, int endId) {
+        int childId = startId;
+        int parentId = getParentId(childId);
+
+        while (parentId >= endId) {
+            if (checkIfParentIsLarger(parentId, childId)) {
+                swap(childId, parentId);
+                childId = parentId;
+                parentId = getParentId(childId);
+            }  else {
+                break;
+            }
+        }
     }
 
     private void heapDown(int startId, int endId) {
@@ -105,12 +124,19 @@ public class Heap<T extends Comparable<T>> implements HeapInterface<T>, HeapExte
         return largestNodeId;
     }
 
+    private int getParentId(int childId) {
+        return (childId - 1) / 2;
+    }
     private int getLeftChildId(int parentId) {
         return 2 * parentId + 1;
     }
 
     private int getRightChildId(int parentId) {
         return 2 * parentId + 2;
+    }
+
+    private boolean checkIfParentIsLarger(int parentId, int childId) {
+        return data.get(childId).compareTo(data.get(parentId)) > 0;
     }
 
     private boolean checkIfChildIsLarger(int childId, int endId, int largestId) {
@@ -141,9 +167,15 @@ public class Heap<T extends Comparable<T>> implements HeapInterface<T>, HeapExte
         }
     }
 
-    private void checkIfIndexIsOutOfBounds(int index) {
+    private void checkIfStartIndexIsOutOfBounds(int index) {
         if (index < 0 || index >= data.size()) {
-            throw new ArrayIndexOutOfBoundsException("index is out of bounds");
+            throw new ArrayIndexOutOfBoundsException("start index is out of bounds");
+        }
+    }
+
+    private void checkIfEndIndexIsOutOfBounds(int index) {
+        if (index < -1 || index > data.size()) {
+            throw new ArrayIndexOutOfBoundsException("end index is out of bounds");
         }
     }
 
