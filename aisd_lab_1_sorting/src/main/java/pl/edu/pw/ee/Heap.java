@@ -10,12 +10,16 @@ public class Heap<T extends Comparable<T>> implements HeapInterface<T>, HeapExte
 
     private List<T> data;
 
+    private boolean isHeap;
+
     public Heap(List<T> data) {
         this.data = data;
 
         if (this.data == null) {
             this.data = new ArrayList<>();
         }
+
+        isHeap = false;
     }
 
     public List<T> getData() {
@@ -28,6 +32,10 @@ public class Heap<T extends Comparable<T>> implements HeapInterface<T>, HeapExte
             throw new IllegalArgumentException("item cannot be null");
         }
 
+        if (!data.isEmpty()) {
+            buildIfNotHeap();
+        }
+
         data.add(item);
 
         if (data.size() > 1) {
@@ -38,6 +46,8 @@ public class Heap<T extends Comparable<T>> implements HeapInterface<T>, HeapExte
     @Override
     public T pop() {
         checkIfDataIsNotEmpty();
+
+        buildIfNotHeap();
 
         int rootIndex = getRootIndex();
         int lastLeafIndex = getLastLeafIndex();
@@ -78,6 +88,13 @@ public class Heap<T extends Comparable<T>> implements HeapInterface<T>, HeapExte
         heapDown(startId, endId);
     }
 
+    private void buildIfNotHeap() {
+        if (!isHeap) {
+            build();
+            isHeap = true;
+        }
+    }
+
     private void heapUp(int startId, int endId) {
         int childId = startId;
         int parentId = getParentId(childId);
@@ -87,7 +104,7 @@ public class Heap<T extends Comparable<T>> implements HeapInterface<T>, HeapExte
                 swap(childId, parentId);
                 childId = parentId;
                 parentId = getParentId(childId);
-            }  else {
+            } else {
                 break;
             }
         }
@@ -127,6 +144,7 @@ public class Heap<T extends Comparable<T>> implements HeapInterface<T>, HeapExte
     private int getParentId(int childId) {
         return (childId - 1) / 2;
     }
+
     private int getLeftChildId(int parentId) {
         return 2 * parentId + 1;
     }
