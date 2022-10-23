@@ -8,7 +8,7 @@ import java.util.List;
 public class HeapSort implements Sorting {
 
     private List<Double> data;
-    private Heap heap;
+    private Heap<Double> heap;
 
     @Override
     public void sort(double[] nums) {
