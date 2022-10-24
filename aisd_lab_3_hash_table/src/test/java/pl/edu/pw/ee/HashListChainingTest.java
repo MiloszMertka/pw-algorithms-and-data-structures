@@ -175,6 +175,21 @@ public class HashListChainingTest {
     }
 
     @Test
+    public void itShouldNotThrowExceptionWhenElemToDeleteNotFound() {
+        // given
+        String value = "test";
+        HashTable<String> hashTable = new HashListChaining<>(DEFAULT_SIZE);
+        hashTable.add(value);
+
+        // when
+        hashTable.delete(value);
+
+        // then
+        String result = hashTable.get(value);
+        assertNull(result);
+    }
+
+    @Test
     public void itShouldCalculateLoadFactor() {
         // given
         String firstValue = "test";
