@@ -76,7 +76,8 @@ public class HashListChaining<T extends Comparable<T>> implements HashTable<T> {
 
     private int countHashId(int hashCode) {
         int n = hashElems.size();
-        return Math.abs(hashCode) % n;
+        int absoluteHashCode = Math.abs(hashCode != Integer.MIN_VALUE ? hashCode : hashCode + 1);
+        return absoluteHashCode % n;
     }
 
     private int computeHashId(T value) {

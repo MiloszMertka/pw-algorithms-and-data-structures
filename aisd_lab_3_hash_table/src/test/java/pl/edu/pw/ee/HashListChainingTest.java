@@ -210,4 +210,32 @@ public class HashListChainingTest {
         assertEquals(expected, loadFactor, delta);
     }
 
+    @Test
+    public void itShouldAddObjectWithMaxIntHashCode() {
+        // given
+        Integer value = Integer.MAX_VALUE;
+        HashListChaining<Integer> hashTable = new HashListChaining<>(DEFAULT_SIZE);
+
+        // when
+        hashTable.add(value);
+
+        // then
+        Integer addedValue = hashTable.get(value);
+        assertEquals(value, addedValue);
+    }
+
+    @Test
+    public void itShouldAddObjectWithMinIntHashCode() {
+        // given
+        Integer value = Integer.MIN_VALUE;
+        HashListChaining<Integer> hashTable = new HashListChaining<>(DEFAULT_SIZE);
+
+        // when
+        hashTable.add(value);
+
+        // then
+        Integer addedValue = hashTable.get(value);
+        assertEquals(value, addedValue);
+    }
+
 }
