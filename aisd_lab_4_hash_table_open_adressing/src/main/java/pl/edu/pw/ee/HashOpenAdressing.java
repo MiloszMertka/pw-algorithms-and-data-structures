@@ -1,19 +1,20 @@
 package pl.edu.pw.ee;
 
-import pl.edu.pw.ee.exceptions.NotImplementedException;
 import pl.edu.pw.ee.services.HashTable;
 
 public abstract class HashOpenAdressing<T extends Comparable<T>> implements HashTable<T> {
 
+    private static final int DEFAULT_INITIAL_SIZE = 2039;
+
     private final T nil = null;
-    private final T del = null;
+    private final double correctLoadFactor;
     private int size;
     private int nElems;
     private T[] hashElems;
-    private final double correctLoadFactor;
+    private boolean[] deletedElems;
 
     HashOpenAdressing() {
-        this(2039); // initial size as random prime number
+        this(DEFAULT_INITIAL_SIZE);
     }
 
     HashOpenAdressing(int size) {
@@ -21,6 +22,7 @@ public abstract class HashOpenAdressing<T extends Comparable<T>> implements Hash
 
         this.size = size;
         this.hashElems = (T[]) new Comparable[this.size];
+        this.deletedElems = new boolean[this.size];
         this.correctLoadFactor = 0.75;
     }
 
@@ -29,29 +31,47 @@ public abstract class HashOpenAdressing<T extends Comparable<T>> implements Hash
         validateInputElem(newElem);
         resizeIfNeeded();
 
-        int key = newElem.hashCode();
-        int i = 0;
-        int hashId = hashFunc(key, i);
-
-        while (hashElems[hashId] != nil && i < size) {
-            i = (i + 1) % size;
-            hashId = hashFunc(key, i);
-        }
-
-        hashElems[hashId] = newElem;
+        addElemToGivenHashTable(hashElems, newElem);
         nElems++;
     }
 
     @Override
     public T get(T elem) {
-        // TODO Auto-generated method stub
+        validateInputElem(elem);
+
+        int key = elem.hashCode();
+        int i = 0;
+        int hashId = hashFunc(key, i);
+
+        while (isElemNotNil(hashId)) {
+            if (isCurrentElemEqualToGivenElem(hashId, elem)) {
+                return elem;
+            }
+
+            i = (i + 1) % size;
+            hashId = hashFunc(key, i);
+        }
+
         return null;
     }
 
     @Override
     public void delete(T elem) {
-        // TODO Auto-generated method stub
+        validateInputElem(elem);
 
+        int key = elem.hashCode();
+        int i = 0;
+        int hashId = hashFunc(key, i);
+
+        while (isElemNotNil(hashId)) {
+            if (isCurrentElemEqualToGivenElem(hashId, elem)) {
+                deletedElems[hashId] = true;
+                nElems--;
+            }
+
+            i = (i + 1) % size;
+            hashId = hashFunc(key, i);
+        }
     }
 
     private void addElemToGivenHashTable(T[] hashTable, T elem) {
@@ -59,12 +79,32 @@ public abstract class HashOpenAdressing<T extends Comparable<T>> implements Hash
         int i = 0;
         int hashId = hashFunc(key, i);
 
-        while (hashTable[hashId] != nil && i < size) {
+        while (isElemNotNil(hashId, hashTable) && !deletedElems[hashId]) {
+            if (isCurrentElemEqualToGivenElem(hashId, elem, hashTable)) {
+                break;
+            }
+
             i = (i + 1) % size;
             hashId = hashFunc(key, i);
         }
 
-        hashElems[hashId] = elem;
+        hashTable[hashId] = elem;
+    }
+
+    private boolean isElemNotNil(int hashId) {
+        return hashElems[hashId] != nil;
+    }
+
+    private boolean isElemNotNil(int hashId, T[] hashTable) {
+        return hashTable[hashId] != nil;
+    }
+
+    private boolean isCurrentElemEqualToGivenElem(int currentHashId, T elem) {
+        return hashElems[currentHashId] == elem && !deletedElems[currentHashId];
+    }
+
+    private boolean isCurrentElemEqualToGivenElem(int currentHashId, T elem, T[] hashTable) {
+        return hashTable[currentHashId] == elem && !deletedElems[currentHashId];
     }
 
     private void validateHashInitSize(int initialSize) {
@@ -101,6 +141,7 @@ public abstract class HashOpenAdressing<T extends Comparable<T>> implements Hash
         this.size *= 2;
 
         T[] newHashElems = (T[]) new Comparable[this.size];
+        deletedElems = new boolean[this.size];
 
         for (T elem : hashElems) {
             if (elem != null) {
@@ -110,4 +151,5 @@ public abstract class HashOpenAdressing<T extends Comparable<T>> implements Hash
 
         hashElems = newHashElems;
     }
+
 }

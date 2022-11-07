@@ -4,21 +4,23 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class HashLinearProbingTest extends HashOpenAdressingTest {
+public class HashQuadraticProbingTest extends HashOpenAdressingTest {
 
     @Override
     public void setUp() {
-        hashTable = new HashLinearProbing<>();
-        integerHashTable = new HashLinearProbing<>();
+        hashTable = new HashQuadraticProbing<>();
+        integerHashTable = new HashQuadraticProbing<>();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void itShouldThrowExceptionWhenSizeIsNegative() {
         // given
         int size = -1;
+        double a = 0.5;
+        double b = 0.5;
 
         // when
-        HashOpenAdressing<String> unusedHashTable = new HashLinearProbing<>(size);
+        HashOpenAdressing<String> unusedHashTable = new HashQuadraticProbing<>(size, a, b);
 
         // then
         assert false;
@@ -28,9 +30,11 @@ public class HashLinearProbingTest extends HashOpenAdressingTest {
     public void itShouldThrowExceptionWhenSizeIsEqualZero() {
         // given
         int size = 0;
+        double a = 0.5;
+        double b = 0.5;
 
         // when
-        HashOpenAdressing<String> unusedHashTable = new HashLinearProbing<>(size);
+        HashOpenAdressing<String> unusedHashTable = new HashQuadraticProbing<>(size, a, b);
 
         // then
         assert false;
@@ -42,13 +46,15 @@ public class HashLinearProbingTest extends HashOpenAdressingTest {
         int key = 123;
         int i = 2;
         int size = 10;
-        HashOpenAdressing<String> linearProbingHashTable = new HashLinearProbing<>(size);
+        double a = 0.5;
+        double b = 0.5;
+        HashOpenAdressing<String> quadraticProbingHashTable = new HashQuadraticProbing<>(size, a, b);
 
         // when
-        int result = linearProbingHashTable.hashFunc(key, i);
+        int result = quadraticProbingHashTable.hashFunc(key, i);
 
         // then
-        int expected = 5;
+        int expected = 6;
         assertEquals(expected, result);
     }
 

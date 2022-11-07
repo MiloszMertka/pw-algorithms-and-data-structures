@@ -20,4 +20,5 @@ public class HashLinearProbing<T extends Comparable<T>> extends HashOpenAdressin
 
         return hash;
     }
+
 }

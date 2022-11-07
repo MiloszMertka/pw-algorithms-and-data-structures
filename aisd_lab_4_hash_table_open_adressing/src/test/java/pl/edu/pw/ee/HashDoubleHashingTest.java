@@ -4,12 +4,12 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class HashLinearProbingTest extends HashOpenAdressingTest {
+public class HashDoubleHashingTest extends HashOpenAdressingTest {
 
     @Override
     public void setUp() {
-        hashTable = new HashLinearProbing<>();
-        integerHashTable = new HashLinearProbing<>();
+        hashTable = new HashDoubleHashing<>();
+        integerHashTable = new HashDoubleHashing<>();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -18,7 +18,7 @@ public class HashLinearProbingTest extends HashOpenAdressingTest {
         int size = -1;
 
         // when
-        HashOpenAdressing<String> unusedHashTable = new HashLinearProbing<>(size);
+        HashOpenAdressing<String> unusedHashTable = new HashDoubleHashing<>(size);
 
         // then
         assert false;
@@ -30,7 +30,7 @@ public class HashLinearProbingTest extends HashOpenAdressingTest {
         int size = 0;
 
         // when
-        HashOpenAdressing<String> unusedHashTable = new HashLinearProbing<>(size);
+        HashOpenAdressing<String> unusedHashTable = new HashDoubleHashing<>(size);
 
         // then
         assert false;
@@ -42,13 +42,13 @@ public class HashLinearProbingTest extends HashOpenAdressingTest {
         int key = 123;
         int i = 2;
         int size = 10;
-        HashOpenAdressing<String> linearProbingHashTable = new HashLinearProbing<>(size);
+        HashOpenAdressing<String> doubleHashingHashTable = new HashDoubleHashing<>(size);
 
         // when
-        int result = linearProbingHashTable.hashFunc(key, i);
+        int result = doubleHashingHashTable.hashFunc(key, i);
 
         // then
-        int expected = 5;
+        int expected = 3;
         assertEquals(expected, result);
     }
 
