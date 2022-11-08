@@ -42,6 +42,7 @@ public abstract class HashOpenAdressing<T extends Comparable<T>> implements Hash
         int key = elem.hashCode();
         int i = 0;
         int hashId = hashFunc(key, i);
+        int initialHashId = hashId;
 
         while (isElemNotNil(hashId)) {
             if (isCurrentElemEqualToGivenElem(hashId, elem)) {
@@ -50,6 +51,10 @@ public abstract class HashOpenAdressing<T extends Comparable<T>> implements Hash
 
             i = (i + 1) % size;
             hashId = hashFunc(key, i);
+
+            if (hashId == initialHashId) {
+                return null;
+            }
         }
 
         return null;
@@ -62,6 +67,7 @@ public abstract class HashOpenAdressing<T extends Comparable<T>> implements Hash
         int key = elem.hashCode();
         int i = 0;
         int hashId = hashFunc(key, i);
+        int initialHashId = hashId;
 
         while (isElemNotNil(hashId)) {
             if (isCurrentElemEqualToGivenElem(hashId, elem)) {
@@ -71,6 +77,10 @@ public abstract class HashOpenAdressing<T extends Comparable<T>> implements Hash
 
             i = (i + 1) % size;
             hashId = hashFunc(key, i);
+
+            if (hashId == initialHashId) {
+                return;
+            }
         }
     }
 
@@ -78,6 +88,7 @@ public abstract class HashOpenAdressing<T extends Comparable<T>> implements Hash
         int key = elem.hashCode();
         int i = 0;
         int hashId = hashFunc(key, i);
+        int initialHashId = hashId;
 
         while (isElemNotNil(hashId, hashTable) && !deletedElems[hashId]) {
             if (isCurrentElemEqualToGivenElem(hashId, elem, hashTable)) {
@@ -86,6 +97,11 @@ public abstract class HashOpenAdressing<T extends Comparable<T>> implements Hash
 
             i = (i + 1) % size;
             hashId = hashFunc(key, i);
+
+            if (hashId == initialHashId) {
+                doubleResize();
+                i = 0;
+            }
         }
 
         hashTable[hashId] = elem;
