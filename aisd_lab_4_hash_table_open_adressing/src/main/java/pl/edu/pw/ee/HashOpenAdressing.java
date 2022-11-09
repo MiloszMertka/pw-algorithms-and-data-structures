@@ -7,11 +7,16 @@ public abstract class HashOpenAdressing<T extends Comparable<T>> implements Hash
     private static final int DEFAULT_INITIAL_SIZE = 2039;
 
     private final T nil = null;
+    private final T del = (T) new Comparable<T>() {
+        @Override
+        public int compareTo(T o) {
+            return 0;
+        }
+    };
     private final double correctLoadFactor;
     private int size;
     private int nElems;
     private T[] hashElems;
-    private boolean[] deletedElems;
 
     HashOpenAdressing() {
         this(DEFAULT_INITIAL_SIZE);
@@ -22,7 +27,6 @@ public abstract class HashOpenAdressing<T extends Comparable<T>> implements Hash
 
         this.size = size;
         this.hashElems = (T[]) new Comparable[this.size];
-        this.deletedElems = new boolean[this.size];
         this.correctLoadFactor = 0.75;
     }
 
@@ -71,7 +75,7 @@ public abstract class HashOpenAdressing<T extends Comparable<T>> implements Hash
 
         while (isElemNotNil(hashId)) {
             if (isCurrentElemEqualToGivenElem(hashId, elem)) {
-                deletedElems[hashId] = true;
+                hashElems[hashId] = del;
                 nElems--;
             }
 
@@ -90,7 +94,7 @@ public abstract class HashOpenAdressing<T extends Comparable<T>> implements Hash
         int hashId = hashFunc(key, i);
         int initialHashId = hashId;
 
-        while (isElemNotNil(hashId, hashTable) && !deletedElems[hashId]) {
+        while (isElemNotNil(hashId, hashTable) && hashElems[hashId] != del) {
             if (isCurrentElemEqualToGivenElem(hashId, elem, hashTable)) {
                 break;
             }
@@ -116,11 +120,11 @@ public abstract class HashOpenAdressing<T extends Comparable<T>> implements Hash
     }
 
     private boolean isCurrentElemEqualToGivenElem(int currentHashId, T elem) {
-        return hashElems[currentHashId] == elem && !deletedElems[currentHashId];
+        return hashElems[currentHashId] == elem && hashElems[currentHashId] != del;
     }
 
     private boolean isCurrentElemEqualToGivenElem(int currentHashId, T elem, T[] hashTable) {
-        return hashTable[currentHashId] == elem && !deletedElems[currentHashId];
+        return hashTable[currentHashId] == elem && hashElems[currentHashId] != del;
     }
 
     private void validateHashInitSize(int initialSize) {
@@ -157,7 +161,6 @@ public abstract class HashOpenAdressing<T extends Comparable<T>> implements Hash
         this.size *= 2;
 
         T[] newHashElems = (T[]) new Comparable[this.size];
-        deletedElems = new boolean[this.size];
 
         for (T elem : hashElems) {
             if (elem != null) {
