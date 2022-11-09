@@ -7,12 +7,16 @@ public class HashQuadraticProbing<T extends Comparable<T>> extends HashOpenAdres
 
     public HashQuadraticProbing() {
         super();
+
         a = 0.5;
         b = 0.5;
     }
 
     public HashQuadraticProbing(int size, double a, double b) {
         super(size);
+
+        validateParameterIsNotZero(b);
+
         this.a = a;
         this.b = b;
     }
@@ -26,6 +30,12 @@ public class HashQuadraticProbing<T extends Comparable<T>> extends HashOpenAdres
         hash = hash < 0 ? -hash : hash;
 
         return hash;
+    }
+
+    private void validateParameterIsNotZero(double parameter) {
+        if (parameter == 0) {
+            throw new IllegalArgumentException("Parameter cannot be equal to 0!");
+        }
     }
 
 }

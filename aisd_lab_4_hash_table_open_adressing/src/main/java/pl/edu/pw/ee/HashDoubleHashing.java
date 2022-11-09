@@ -16,6 +16,11 @@ public class HashDoubleHashing<T extends Comparable<T>> extends HashOpenAdressin
 
         int f = key % m;
         int g = 1 + (key % (m - 3));
+
+        if (g == 0) {
+            g++;
+        }
+
         int hash = (f + (i * g)) % m;
 
         hash = hash < 0 ? -hash : hash;

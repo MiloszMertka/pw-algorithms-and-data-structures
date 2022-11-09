@@ -52,4 +52,20 @@ public class HashDoubleHashingTest extends HashOpenAdressingTest {
         assertEquals(expected, result);
     }
 
+    @Test
+    public void itShouldCorrectlyCalculateHashIdWhenGFunctionEvaluatesToZero() {
+        // given
+        int key = -1;
+        int i = 2;
+        int size = 5;
+        HashOpenAdressing<String> doubleHashingHashTable = new HashDoubleHashing<>(size);
+
+        // when
+        int result = doubleHashingHashTable.hashFunc(key, i);
+
+        // then
+        int expected = 1;
+        assertEquals(expected, result);
+    }
+
 }

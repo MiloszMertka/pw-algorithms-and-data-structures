@@ -202,6 +202,20 @@ public abstract class HashOpenAdressingTest {
         assertTrue(isPositive);
     }
 
+    @Test
+    public void itShouldCalculatePositiveHashWhenKeyAndIndexAreMaxIntValues() {
+        // given
+        int key = Integer.MAX_VALUE;
+        int i = Integer.MAX_VALUE;
+
+        // when
+        int result = hashTable.hashFunc(key, i);
+
+        // then
+        boolean isPositive = result >= 0;
+        assertTrue(isPositive);
+    }
+
     private int getNumOfElems(HashTable<?> hash) {
         String fieldNumOfElems = "nElems";
         try {
