@@ -8,6 +8,8 @@ public class HashDoubleHashing<T extends Comparable<T>> extends HashOpenAdressin
 
     public HashDoubleHashing(int size) {
         super(size);
+
+        validateSizeIsNotThree(size);
     }
 
     @Override
@@ -26,6 +28,12 @@ public class HashDoubleHashing<T extends Comparable<T>> extends HashOpenAdressin
         hash = hash < 0 ? -hash : hash;
 
         return hash;
+    }
+
+    private void validateSizeIsNotThree(int size) {
+        if (size == 3) {
+            throw new IllegalArgumentException("Size cannot be equal to 3!");
+        }
     }
 
 }

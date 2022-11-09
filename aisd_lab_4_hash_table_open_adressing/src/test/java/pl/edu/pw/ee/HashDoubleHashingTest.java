@@ -36,6 +36,18 @@ public class HashDoubleHashingTest extends HashOpenAdressingTest {
         assert false;
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void itShouldThrowExceptionWhenSizeIsEqualThree() {
+        // given
+        int size = 3;
+
+        // when
+        HashOpenAdressing<String> unusedHashTable = new HashDoubleHashing<>(size);
+
+        // then
+        assert false;
+    }
+
     @Test
     public void itShouldCorrectlyCalculateHashId() {
         // given
