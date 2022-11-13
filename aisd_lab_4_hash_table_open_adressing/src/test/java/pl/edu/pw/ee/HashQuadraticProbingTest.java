@@ -57,6 +57,40 @@ public class HashQuadraticProbingTest extends HashOpenAdressingTest {
         assert false;
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void itShouldThrowExceptionWhenParamIsInfinite() {
+        // given
+        int key = 123;
+        int i = 2;
+        int size = 10;
+        double a = Double.NEGATIVE_INFINITY;
+        double b = 0.5;
+        HashOpenAdressing<String> quadraticProbingHashTable = new HashQuadraticProbing<>(size, a, b);
+
+        // when
+        quadraticProbingHashTable.hashFunc(key, i);
+
+        // then
+        assert false;
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void itShouldThrowExceptionWhenParamIsNaN() {
+        // given
+        int key = 123;
+        int i = 2;
+        int size = 10;
+        double a = 0.5;
+        double b = Double.NaN;
+        HashOpenAdressing<String> quadraticProbingHashTable = new HashQuadraticProbing<>(size, a, b);
+
+        // when
+        quadraticProbingHashTable.hashFunc(key, i);
+
+        // then
+        assert false;
+    }
+
     @Test
     public void itShouldCorrectlyCalculateHashId() {
         // given

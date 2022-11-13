@@ -15,6 +15,8 @@ public class HashQuadraticProbing<T extends Comparable<T>> extends HashOpenAdres
     public HashQuadraticProbing(int size, double a, double b) {
         super(size);
 
+        validateParameter(a);
+        validateParameter(b);
         validateParameterIsNotZero(b);
 
         this.a = a;
@@ -30,6 +32,12 @@ public class HashQuadraticProbing<T extends Comparable<T>> extends HashOpenAdres
         hash = hash < 0 ? -hash : hash;
 
         return hash;
+    }
+
+    private void validateParameter(double parameter) {
+        if (Double.isNaN(parameter) || Double.isInfinite(parameter)) {
+            throw new IllegalArgumentException("Parameter cannot be Infinite or NaN!");
+        }
     }
 
     private void validateParameterIsNotZero(double parameter) {
