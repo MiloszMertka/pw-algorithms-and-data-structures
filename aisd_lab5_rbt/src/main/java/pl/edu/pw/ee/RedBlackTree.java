@@ -1,5 +1,6 @@
 package pl.edu.pw.ee;
 
+import static java.lang.String.format;
 import static pl.edu.pw.ee.Color.BLACK;
 import static pl.edu.pw.ee.Color.RED;
 
@@ -35,6 +36,42 @@ public class RedBlackTree<K extends Comparable<K>, V> {
         root.setColor(BLACK);
     }
 
+    public void deleteMax() {
+        if (root == null) {
+            return;
+        }
+
+        root = deleteMax(root);
+
+        if (root != null) {
+            root.setColor(BLACK);
+        }
+    }
+
+    public String getPreOrder() {
+        String result = "";
+        result = getPreOrder(root, result);
+
+        result = result.trim();
+        return result;
+    }
+
+    public String getInOrder() {
+        String result = "";
+        result = getInOrder(root, result);
+
+        result = result.trim();
+        return result;
+    }
+
+    public String getPostOrder() {
+        String result = "";
+        result = getPostOrder(root, result);
+
+        result = result.trim();
+        return result;
+    }
+
     private void validateKey(K key) {
         if (key == null) {
             throw new IllegalArgumentException("Key cannot be null.");
@@ -57,7 +94,7 @@ public class RedBlackTree<K extends Comparable<K>, V> {
 
     private Node<K, V> put(Node<K, V> node, K key, V value) {
         if (node == null) {
-            return new Node(key, value);
+            return new Node<>(key, value);
         }
 
         if (isKeyBiggerThanNode(key, node)) {
@@ -93,6 +130,36 @@ public class RedBlackTree<K extends Comparable<K>, V> {
         node.setLeft(leftChild);
     }
 
+    private Node<K, V> deleteMax(Node<K, V> node) {
+        if (isRed(node.getLeft())) {
+            node = rotateRight(node);
+        }
+
+        if (node.getRight() == null) {
+            return null;
+        }
+
+        if (!isRed(node.getRight()) && !isRed(node.getRight().getLeft())) {
+            node = reorganizeRedToRight(node);
+        }
+
+        Node<K, V> deleteResult = deleteMax(node.getRight());
+        node.setRight(deleteResult);
+
+        return reorganizeTree(node);
+    }
+
+    private Node<K, V> reorganizeRedToRight(Node<K, V> node) {
+        changeColors(node);
+
+        if (isRed(node.getLeft().getLeft())) {
+            node = rotateRight(node);
+            changeColors(node);
+        }
+
+        return node;
+    }
+
     private Node<K, V> reorganizeTree(Node<K, V> node) {
         node = rotateLeftIfNeeded(node);
         node = rotateRightIfNeeded(node);
@@ -126,8 +193,13 @@ public class RedBlackTree<K extends Comparable<K>, V> {
     }
 
     private Node<K, V> rotateRight(Node<K, V> node) {
-	// TODO
-        return null;
+        Node<K, V> head = node.getLeft();
+        node.setLeft(head.getRight());
+        head.setRight(node);
+        head.setColor(node.getColor());
+        node.setColor(RED);
+
+        return head;
     }
 
     private void changeColorsIfNeeded(Node<K, V> node) {
@@ -137,9 +209,17 @@ public class RedBlackTree<K extends Comparable<K>, V> {
     }
 
     private void changeColors(Node<K, V> node) {
-        node.setColor(RED);
-        node.getLeft().setColor(BLACK);
-        node.getRight().setColor(BLACK);
+        swapColor(node);
+        swapColor(node.getLeft());
+        swapColor(node.getRight());
+    }
+
+    private void swapColor(Node<K, V> node) {
+        if (node.isRed()) {
+            node.setColor(BLACK);
+        } else {
+            node.setColor(RED);
+        }
     }
 
     private boolean isBlack(Node<K, V> node) {
@@ -150,5 +230,43 @@ public class RedBlackTree<K extends Comparable<K>, V> {
         return node == null
                 ? false
                 : node.isRed();
+    }
+
+    private String getPreOrder(Node<K, V> head, String result) {
+        if (head != null) {
+            result += formatTraversation(head);
+
+            result = getPreOrder(head.getLeft(), result);
+            result = getPreOrder(head.getRight(), result);
+        }
+
+        return result;
+    }
+
+    private String getInOrder(Node<K, V> head, String result) {
+        if (head != null) {
+            result = getInOrder(head.getLeft(), result);
+
+            result += formatTraversation(head);
+
+            result = getInOrder(head.getRight(), result);
+        }
+
+        return result;
+    }
+
+    private String getPostOrder(Node<K, V> head, String result) {
+        if (head != null) {
+            result = getPostOrder(head.getLeft(), result);
+            result = getPostOrder(head.getRight(), result);
+
+            result += formatTraversation(head);
+        }
+
+        return result;
+    }
+
+    private String formatTraversation(Node<K, V> node) {
+        return format("%s:%s ", node.getKey(), node.getValue());
     }
 }
