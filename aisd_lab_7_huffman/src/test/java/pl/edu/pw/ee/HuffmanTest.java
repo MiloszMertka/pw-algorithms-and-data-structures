@@ -3,6 +3,8 @@ package pl.edu.pw.ee;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 public class HuffmanTest {
 
     private Huffman huffmanImpl;
@@ -19,10 +21,11 @@ public class HuffmanTest {
         boolean compress = true;
 
         // when
-        huffmanImpl.huffman(path, compress);
+        int result = huffmanImpl.huffman(path, compress);
 
         // then
-        assert true;
+        int expected = 18;
+        assertEquals(expected, result);
     }
 
 }

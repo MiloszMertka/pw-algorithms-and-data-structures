@@ -27,54 +27,18 @@ public class Huffman {
 
     private int compressFile(String pathToRootDir) {
         String characters = readSourceFile(pathToRootDir);
-        int bits = 0;
 
         Map<Character, Integer> charactersFrequency = createCharactersFrequencyMap(characters);
         Queue<HuffmanTreeNode> huffmanTreeNodesPriorityQueue = createPriorityQueue(charactersFrequency);
         HuffmanTreeNode huffmanTreeRoot = createHuffmanTree(huffmanTreeNodesPriorityQueue);
         Map<Character, String> codes = createCodesMap(huffmanTreeRoot);
 
-        File outputFile = new File(pathToRootDir + COMPRESSED_FILENAME);
         List<Integer> bytes = new ArrayList<>();
-        try (FileOutputStream fileOutputStream = new FileOutputStream(outputFile)) {
-            int byteCode = 0;
-            for (int i = characters.length() - 1; i >= 0; i--) {
-                String code = codes.get(characters.charAt(i));
+        int bitsCount = parseCodesToBytes(bytes, characters, codes);
 
-                for (int j = code.length() - 1; j >= 0; j--) {
-                    if (code.charAt(j) == '1') {
-                        byteCode = byteCode >>> 1;
-                        byteCode |= 1 << 31;
-                    } else {
-                        byteCode = byteCode >>> 1;
-                    }
+        writeCompressedFile(pathToRootDir, bitsCount, bytes);
 
-                    bits++;
-
-                    if (bits % 32 == 0) {
-                        bytes.add(byteCode);
-                        System.out.println(Integer.toBinaryString(byteCode));
-                        byteCode = 0x0;
-                    }
-                }
-            }
-
-            if (bits % 32 != 0) {
-                bytes.add(byteCode);
-                System.out.println(Integer.toBinaryString(byteCode));
-            }
-
-            fileOutputStream.write(bits);
-            for (int fourBytes : bytes) {
-                fileOutputStream.write(convertIntToByteArray(fourBytes));
-            }
-
-            System.out.println(codes);
-        } catch (IOException ioException) {
-            throw new IllegalStateException("Exception while writing file " + outputFile.getAbsolutePath());
-        }
-
-        return bits;
+        return bitsCount;
     }
 
     private int decompressFile(String pathToRootDir) {
@@ -83,7 +47,7 @@ public class Huffman {
     }
 
     private String readSourceFile(String pathToRootDir) {
-        String content = "";
+        String content;
         StringBuilder stringBuilder = new StringBuilder();
         File file = new File(pathToRootDir + SOURCE_FILENAME);
 
@@ -176,6 +140,47 @@ public class Huffman {
         convertCharsToCodes(codesMap, root.right, code + "1");
     }
 
+    private int parseCodesToBytes(List<Integer> bytes, String characters, Map<Character, String> codes) {
+        int bitsCount = 0;
+        int byteCode = 0;
+
+        for (int i = characters.length() - 1; i >= 0; i--) {
+            String code = codes.get(characters.charAt(i));
+
+            for (int j = code.length() - 1; j >= 0; j--) {
+                char bit = code.charAt(j);
+                byteCode = addBitToByteCode(byteCode, bit);
+                bitsCount++;
+
+                if (isByteCodeFull(bitsCount)) {
+                    bytes.add(byteCode);
+                    byteCode = 0;
+                }
+            }
+        }
+
+        if (!isByteCodeFull(bitsCount)) {
+            bytes.add(byteCode);
+        }
+
+        return bitsCount;
+    }
+
+    private int addBitToByteCode(int byteCode, char bit) {
+        if (bit == '1') {
+            byteCode = byteCode >>> 1;
+            byteCode |= 1 << 31;
+        } else {
+            byteCode = byteCode >>> 1;
+        }
+
+        return byteCode;
+    }
+
+    private boolean isByteCodeFull(int bitsCount) {
+        return bitsCount % 32 == 0;
+    }
+
     private byte[] convertIntToByteArray(int value) {
         return new byte[] {
             (byte) (value >>> 24),
@@ -183,6 +188,19 @@ public class Huffman {
             (byte) (value >>> 8),
             (byte) value
         };
+    }
+
+    private void writeCompressedFile(String pathToRootDir, int bitsCount, List<Integer> bytes) {
+        File outputFile = new File(pathToRootDir + COMPRESSED_FILENAME);
+        try (FileOutputStream fileOutputStream = new FileOutputStream(outputFile)) {
+            fileOutputStream.write(bitsCount);
+
+            for (int fourBytes : bytes) {
+                fileOutputStream.write(convertIntToByteArray(fourBytes));
+            }
+        } catch (IOException ioException) {
+            throw new IllegalStateException("Exception while writing file " + outputFile.getAbsolutePath());
+        }
     }
 
     private class HuffmanTreeNode implements Comparable<HuffmanTreeNode> {
