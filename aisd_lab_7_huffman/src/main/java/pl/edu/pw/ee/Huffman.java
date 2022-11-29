@@ -36,6 +36,7 @@ public class Huffman {
         List<Integer> bytes = new ArrayList<>();
         int bitsCount = parseCodesToBytes(bytes, characters, codes);
 
+        writeCharactersMap(pathToRootDir, charactersFrequency);
         writeCompressedFile(pathToRootDir, bitsCount, bytes);
 
         return bitsCount;
@@ -181,25 +182,43 @@ public class Huffman {
         return bitsCount % 32 == 0;
     }
 
-    private byte[] convertIntToByteArray(int value) {
-        return new byte[] {
-            (byte) (value >>> 24),
-            (byte) (value >>> 16),
-            (byte) (value >>> 8),
-            (byte) value
-        };
-    }
-
     private void writeCompressedFile(String pathToRootDir, int bitsCount, List<Integer> bytes) {
         File outputFile = new File(pathToRootDir + COMPRESSED_FILENAME);
-        try (FileOutputStream fileOutputStream = new FileOutputStream(outputFile)) {
+        boolean appendMode = true;
+        try (FileOutputStream fileOutputStream = new FileOutputStream(outputFile, appendMode)) {
             fileOutputStream.write(bitsCount);
 
             for (int fourBytes : bytes) {
                 fileOutputStream.write(convertIntToByteArray(fourBytes));
             }
-        } catch (IOException ioException) {
+        } catch (IOException | SecurityException exception) {
             throw new IllegalStateException("Exception while writing file " + outputFile.getAbsolutePath());
+        }
+    }
+
+    private byte[] convertIntToByteArray(int value) {
+        return new byte[] {
+                (byte) (value >>> 24),
+                (byte) (value >>> 16),
+                (byte) (value >>> 8),
+                (byte) value
+        };
+    }
+
+    private void writeCharactersMap(String pathToRootDir, Map<Character, Integer> charactersFrequency) {
+        File outputFile = new File(pathToRootDir + COMPRESSED_FILENAME);
+        try (PrintWriter printWriter = new PrintWriter(outputFile)) {
+            int entriesCount = charactersFrequency.size();
+            printWriter.print(entriesCount);
+
+            for (Map.Entry<Character, Integer> characterFrequency : charactersFrequency.entrySet()) {
+                char character = characterFrequency.getKey();
+                int frequency = characterFrequency.getValue();
+                printWriter.print(character);
+                printWriter.print(frequency);
+            }
+        } catch (IOException | SecurityException exception) {
+            throw new IllegalStateException("Exception while writing tree to file " + outputFile.getAbsolutePath());
         }
     }
 
