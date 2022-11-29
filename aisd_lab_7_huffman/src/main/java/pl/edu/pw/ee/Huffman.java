@@ -8,6 +8,7 @@ public class Huffman {
     private static final String SOURCE_FILENAME = "source.txt";
     private static final String COMPRESSED_FILENAME = "compressed.comp";
     private static final String DECOMPRESSED_FILENAME = "decompressed.txt";
+    private static final String TREE_FILENAME = "tree.tree";
 
     public int huffman(String pathToRootDir, boolean compress){
     	validatePathToRootDir(pathToRootDir);
@@ -29,22 +30,25 @@ public class Huffman {
         String characters = readSourceFile(pathToRootDir);
 
         Map<Character, Integer> charactersFrequency = createCharactersFrequencyMap(characters);
-        Queue<HuffmanTreeNode> huffmanTreeNodesPriorityQueue = createPriorityQueue(charactersFrequency);
-        HuffmanTreeNode huffmanTreeRoot = createHuffmanTree(huffmanTreeNodesPriorityQueue);
+        HuffmanTreeNode huffmanTreeRoot = createHuffmanTree(charactersFrequency);
         Map<Character, String> codes = createCodesMap(huffmanTreeRoot);
 
         List<Integer> bytes = new ArrayList<>();
         int bitsCount = parseCodesToBytes(bytes, characters, codes);
 
-        writeCharactersMap(pathToRootDir, charactersFrequency);
+        writeTreeFile(pathToRootDir, huffmanTreeRoot);
         writeCompressedFile(pathToRootDir, bitsCount, bytes);
 
         return bitsCount;
     }
 
     private int decompressFile(String pathToRootDir) {
-        // TODO
-        return -1;
+        HuffmanTreeNode huffmanTreeRoot = readTreeFile(pathToRootDir);
+        String characters = readCompressedFile(pathToRootDir, huffmanTreeRoot);
+
+        writeDecompressedFile(pathToRootDir, characters);
+
+        return characters.length();
     }
 
     private String readSourceFile(String pathToRootDir) {
@@ -87,19 +91,10 @@ public class Huffman {
         }
     }
 
-    private Queue<HuffmanTreeNode> createPriorityQueue(Map<Character, Integer> charactersFrequency) {
-        Queue<HuffmanTreeNode> huffmanTreeNodesPriorityQueue = new PriorityQueue<>();
-
-        for (Map.Entry<Character, Integer> charFreqEntry : charactersFrequency.entrySet()) {
-            HuffmanTreeNode node = new HuffmanTreeNode(charFreqEntry.getKey(), charFreqEntry.getValue());
-            huffmanTreeNodesPriorityQueue.add(node);
-        }
-
-        return huffmanTreeNodesPriorityQueue;
-    }
-
-    private HuffmanTreeNode createHuffmanTree(Queue<HuffmanTreeNode> huffmanTreeNodesPriorityQueue) {
+    private HuffmanTreeNode createHuffmanTree(Map<Character, Integer> charactersFrequency) {
         HuffmanTreeNode root = null;
+
+        Queue<HuffmanTreeNode> huffmanTreeNodesPriorityQueue = createPriorityQueue(charactersFrequency);
 
         while (huffmanTreeNodesPriorityQueue.size() > 1) {
             HuffmanTreeNode leftChildren = huffmanTreeNodesPriorityQueue.poll();
@@ -115,6 +110,17 @@ public class Huffman {
         validateHuffmanTreeIsNotEmpty(root);
 
         return root;
+    }
+
+    private Queue<HuffmanTreeNode> createPriorityQueue(Map<Character, Integer> charactersFrequency) {
+        Queue<HuffmanTreeNode> huffmanTreeNodesPriorityQueue = new PriorityQueue<>();
+
+        for (Map.Entry<Character, Integer> charFreqEntry : charactersFrequency.entrySet()) {
+            HuffmanTreeNode node = new HuffmanTreeNode(charFreqEntry.getKey(), charFreqEntry.getValue());
+            huffmanTreeNodesPriorityQueue.add(node);
+        }
+
+        return huffmanTreeNodesPriorityQueue;
     }
 
     private void validateHuffmanTreeIsNotEmpty(HuffmanTreeNode root) {
@@ -184,8 +190,7 @@ public class Huffman {
 
     private void writeCompressedFile(String pathToRootDir, int bitsCount, List<Integer> bytes) {
         File outputFile = new File(pathToRootDir + COMPRESSED_FILENAME);
-        boolean appendMode = true;
-        try (FileOutputStream fileOutputStream = new FileOutputStream(outputFile, appendMode)) {
+        try (FileOutputStream fileOutputStream = new FileOutputStream(outputFile)) {
             fileOutputStream.write(bitsCount);
 
             for (int fourBytes : bytes) {
@@ -205,27 +210,78 @@ public class Huffman {
         };
     }
 
-    private void writeCharactersMap(String pathToRootDir, Map<Character, Integer> charactersFrequency) {
-        File outputFile = new File(pathToRootDir + COMPRESSED_FILENAME);
-        try (PrintWriter printWriter = new PrintWriter(outputFile)) {
-            int entriesCount = charactersFrequency.size();
-            printWriter.print(entriesCount);
-
-            for (Map.Entry<Character, Integer> characterFrequency : charactersFrequency.entrySet()) {
-                char character = characterFrequency.getKey();
-                int frequency = characterFrequency.getValue();
-                printWriter.print(character);
-                printWriter.print(frequency);
-            }
+    private void writeTreeFile(String pathToRootDir, HuffmanTreeNode root) {
+        File outputFile = new File(pathToRootDir + TREE_FILENAME);
+        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(outputFile))) {
+            objectOutputStream.writeObject(root);
         } catch (IOException | SecurityException exception) {
-            throw new IllegalStateException("Exception while writing tree to file " + outputFile.getAbsolutePath());
+            throw new IllegalStateException("Exception while writing tree file " + outputFile.getAbsolutePath());
         }
     }
 
-    private class HuffmanTreeNode implements Comparable<HuffmanTreeNode> {
+    private HuffmanTreeNode readTreeFile(String pathToRootDir) {
+        File treeFile = new File(pathToRootDir + TREE_FILENAME);
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(treeFile))) {
+            return (HuffmanTreeNode) objectInputStream.readObject();
+        } catch (IOException | SecurityException exception) {
+            throw new IllegalStateException("Exception while reading tree file " + treeFile.getAbsolutePath());
+        } catch (ClassNotFoundException | ClassCastException exception) {
+            throw new IllegalStateException("Exception while parsing tree object!");
+        }
+    }
+
+    private String readCompressedFile(String pathToRootDir, HuffmanTreeNode root) {
+        StringBuilder result = new StringBuilder();
+
+        File compressedFile = new File(pathToRootDir + COMPRESSED_FILENAME);
+        try (FileInputStream fileInputStream = new FileInputStream(compressedFile)) {
+            int bitsCount = fileInputStream.read();
+
+            int readByte = 0;
+            HuffmanTreeNode temp = root;
+            for (int i = 0; i < bitsCount; i++) {
+                if (i % 8 == 0) {
+                    readByte = fileInputStream.read();
+                }
+
+                int position = 7 - (i % 8);
+                if (isNthBitOne(readByte, position)) {
+                    temp = temp.right;
+                } else {
+                    temp = temp.left;
+                }
+
+                if (temp.isLeafNode()) {
+                    result.append(temp.character);
+                    temp = root;
+                }
+            }
+        } catch (IOException | SecurityException exception) {
+            throw new IllegalStateException("Exception while reading compressed file " + compressedFile.getAbsolutePath());
+        }
+
+        return result.toString();
+    }
+
+    private boolean isNthBitOne(int readBytes, int n) {
+        return ((readBytes >>> n) & 1) == 1;
+    }
+
+    private void writeDecompressedFile(String pathToRootDir, String characters) {
+        File outputFile = new File(pathToRootDir + DECOMPRESSED_FILENAME);
+        try (PrintWriter printWriter = new PrintWriter(outputFile)) {
+            printWriter.print(characters);
+        } catch (IOException | SecurityException exception) {
+            throw new IllegalStateException("Exception while writing decompressed file " + outputFile.getAbsolutePath());
+        }
+    }
+
+    private static class HuffmanTreeNode implements Comparable<HuffmanTreeNode>, Serializable {
+
+        private static final long serialVersionUID = 1L;
 
         private Character character;
-        private int number;
+        private transient int number;
         private HuffmanTreeNode left;
         private HuffmanTreeNode right;
 

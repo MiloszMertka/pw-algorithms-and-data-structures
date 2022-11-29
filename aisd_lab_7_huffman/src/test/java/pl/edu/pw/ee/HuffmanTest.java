@@ -28,4 +28,18 @@ public class HuffmanTest {
         assertEquals(expected, result);
     }
 
+    @Test
+    public void itShouldDecompressFileInGivenDir() {
+        // given
+        String path = "test_files/";
+        boolean compress = false;
+
+        // when
+        int result = huffmanImpl.huffman(path, compress);
+
+        // then
+        int expected = 8;
+        assertEquals(expected, result);
+    }
+
 }
