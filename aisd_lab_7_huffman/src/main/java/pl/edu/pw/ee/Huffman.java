@@ -33,7 +33,7 @@ public class Huffman {
         HuffmanTreeNode huffmanTreeRoot = createHuffmanTree(charactersFrequency);
         Map<Character, String> codes = createCodesMap(huffmanTreeRoot);
 
-        List<Integer> bytes = new ArrayList<>();
+        List<Byte> bytes = new ArrayList<>();
         int bitsCount = parseCodesToBytes(bytes, characters, codes);
 
         writeTreeFile(pathToRootDir, huffmanTreeRoot);
@@ -147,9 +147,9 @@ public class Huffman {
         convertCharsToCodes(codesMap, root.right, code + "1");
     }
 
-    private int parseCodesToBytes(List<Integer> bytes, String characters, Map<Character, String> codes) {
+    private int parseCodesToBytes(List<Byte> bytes, String characters, Map<Character, String> codes) {
         int bitsCount = 0;
-        int byteCode = 0;
+        byte byteCode = 0;
 
         for (int i = characters.length() - 1; i >= 0; i--) {
             String code = codes.get(characters.charAt(i));
@@ -173,28 +173,28 @@ public class Huffman {
         return bitsCount;
     }
 
-    private int addBitToByteCode(int byteCode, char bit) {
+    private byte addBitToByteCode(byte byteCode, char bit) {
         if (bit == '1') {
-            byteCode = byteCode >>> 1;
-            byteCode |= 1 << 31;
+            byteCode = (byte) (byteCode >>> 1);
+            byteCode |= 1 << 7;
         } else {
-            byteCode = byteCode >>> 1;
+            byteCode = (byte) (byteCode >>> 1);
         }
 
         return byteCode;
     }
 
     private boolean isByteCodeFull(int bitsCount) {
-        return bitsCount % 32 == 0;
+        return bitsCount % 7 == 0;
     }
 
-    private void writeCompressedFile(String pathToRootDir, int bitsCount, List<Integer> bytes) {
+    private void writeCompressedFile(String pathToRootDir, int bitsCount, List<Byte> bytes) {
         File outputFile = new File(pathToRootDir + COMPRESSED_FILENAME);
         try (FileOutputStream fileOutputStream = new FileOutputStream(outputFile)) {
             fileOutputStream.write(bitsCount);
 
-            for (int fourBytes : bytes) {
-                fileOutputStream.write(convertIntToByteArray(fourBytes));
+            for (byte byteCode : bytes) {
+                fileOutputStream.write(byteCode);
             }
         } catch (IOException | SecurityException exception) {
             throw new IllegalStateException("Exception while writing file " + outputFile.getAbsolutePath());
