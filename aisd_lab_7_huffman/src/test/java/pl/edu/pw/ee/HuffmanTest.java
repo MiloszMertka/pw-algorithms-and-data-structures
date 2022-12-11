@@ -80,6 +80,21 @@ public class HuffmanTest {
         assertTrue(result);
     }
 
+    @Test
+    public void itShouldCorrectlyCompressAndDecompressLargeFile() {
+        // given
+        String path = TEST_FILES_PATH + "lalka/";
+        boolean compress = true;
+
+        // when
+        huffmanImpl.huffman(path, compress);
+        huffmanImpl.huffman(path, !compress);
+
+        // then
+        boolean result = compareSourceAndDecompressedFiles(path);
+        assertTrue(result);
+    }
+
     @Test(expected = IllegalStateException.class)
     public void itShouldThrowExceptionWhenNonAsciiCharacterInFile() {
         // given
