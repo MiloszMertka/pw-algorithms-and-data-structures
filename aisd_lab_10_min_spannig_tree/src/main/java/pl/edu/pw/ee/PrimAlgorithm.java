@@ -16,20 +16,19 @@ public class PrimAlgorithm implements MinSpanningTree {
     public String findMST(String pathToFile) {
         readGraph();
 
-        Double[][] mstMatrix = initializeMSTMatrix();
         String result = "";
         addEdgesToQueue(0);
         while (!edgesQueue.isEmpty()) {
             Edge edge  = edgesQueue.poll();
             
-            if (!checkIfNodesAreVisited(edge)) {
-                mstMatrix[edge.from][edge.to] = edge.wage;
-                
+            if (!checkIfNodesAreVisited(edge)) {               
                 if (!result.isEmpty()) {
                     result += "|";
                 }
                 
                 result += edge.from + "_" + edge.wage + "_" + edge.to;
+                
+                addEdgesToQueue(edge.to);
             }
         }
 
@@ -67,19 +66,6 @@ public class PrimAlgorithm implements MinSpanningTree {
     
     private boolean checkIfNodesAreVisited(Edge edge) {
         return visitedNodes.contains(edge.from) && visitedNodes.contains(edge.to);
-    }
-    
-    private Double[][] initializeMSTMatrix() {
-        int size = matrix.length;
-        Double[][] mstMatrix = new Double[size][size];
-        
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                mstMatrix[i][j] = null;
-            }
-        }
-        
-        return mstMatrix;
     }
 
     private static class Edge implements Comparable<Edge> {

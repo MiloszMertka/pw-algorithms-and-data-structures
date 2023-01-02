@@ -9,7 +9,7 @@ public class PrimAlgorithmTest {
     
     @Test
     public void itShouldCorrectlyFindMST() {
-        //
+        System.out.println(prim.findMST(null));
     }
     
 }
